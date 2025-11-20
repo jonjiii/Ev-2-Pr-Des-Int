@@ -1,0 +1,6 @@
+@SistemaComercial.Web_HostAddress = http://localhost:5278
+
+GET {{SistemaComercial.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

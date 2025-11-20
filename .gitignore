@@ -1,0 +1,20 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.pdb
+*.log
+
+## macOS
+.DS_Store
+
+## Environment files
+appsettings.Development.json
+appsettings.Local.json
+
+## IDE
+.idea/
+.vscode/

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option csharp_namespace = "Camionetas.Grpc";
+
+package camionetas;
+
+// ----------- MENSAJES -----------
+
+message CamionetaRequest {
+  string patente = 1;
+}
+
+message CamionetaEstadoResponse {
+  string patente = 1;
+  string estado = 2;           // Disponible, EnArriendo, EnMantencion
+  int32 kilometraje = 3;
+  bool disponible = 4;
+}
+
+message CambiarEstadoRequest {
+  string patente = 1;
+  string nuevoEstado = 2;      // "EnArriendo", "Disponible", "EnMantencion"
+}
+
+message CambiarEstadoResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message Vacio {}
+
+// ----------- SERVICIO PRINCIPAL -----------
+
+service MantencionService {
+  
+  // Obtener datos de una camioneta
+  rpc ConsultarCamioneta(CamionetaRequest) returns (CamionetaEstadoResponse);
+
+  // Cambiar estado de la camioneta
+  rpc CambiarEstado(CambiarEstadoRequest) returns (CambiarEstadoResponse);
+
+  // Obtener kilometraje
+  rpc ObtenerKilometraje(CamionetaRequest) returns (CamionetaEstadoResponse);
+}
