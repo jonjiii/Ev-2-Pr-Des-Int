@@ -71,5 +71,3 @@ Firewall y puertos
 Problemas comunes
 - Si el cliente gRPC no se conecta: confirma que Mantención esté corriendo y que la URL y puerto sean correctos en [`MantencionGrpcClient`](SistemaComercial.Web/Services/MantencionGrpcClient.cs).
 - Si hay errores de DB: revisa credenciales y puerto en [SistemaMantencion.Web/appsettings.json](SistemaMantencion.Web/appsettings.json) y [SistemaComercial.Web/appsettings.json](SistemaComercial.Web/appsettings.json).
-
-Eso es todo — corre Mantención primero, luego Comercial. Si quieres, puedo agregar scripts .bat/.ps1 para automatizar el arranque en Windows.
