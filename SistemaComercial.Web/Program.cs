@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // OpenAPI
 builder.Services.AddOpenApi();
 
+builder.Services.AddRazorPages();
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -34,6 +36,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapRazorPages();
 
 // ENDPOINTS — CLIENTES
 var clientes_group = app.MapGroup("/api/clientes");

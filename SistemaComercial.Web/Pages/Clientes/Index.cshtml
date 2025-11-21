@@ -1,0 +1,30 @@
+@page
+@model SistemaComercial.Web.Pages.Clientes.IndexModel
+
+<h2 class="mt-3">Clientes</h2>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Nuevo Cliente</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>RUT</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var c in Model.ListaClientes)
+    {
+        <tr>
+            <td>@c.Nombre</td>
+            <td>@c.Rut</td>
+            <td>@c.Telefono</td>
+            <td>@c.Correo</td>
+        </tr>
+    }
+    </tbody>
+</table>
