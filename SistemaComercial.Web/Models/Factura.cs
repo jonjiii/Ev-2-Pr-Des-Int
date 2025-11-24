@@ -8,3 +8,4 @@ public class Factura
     public DateTime FechaEmision { get; set; }
     public decimal Monto { get; set; }
 }
+

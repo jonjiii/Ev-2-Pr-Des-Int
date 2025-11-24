@@ -1,0 +1,31 @@
+@page
+@model SistemaComercial.Web.Pages.Precios.IndexModel
+
+<h2 class="mt-3">Precios de Arriendo</h2>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Nuevo Precio</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Tipo de Camioneta</th>
+            <th>Precio por Día</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var p in Model.ListaPrecios)
+    {
+        <tr>
+            <td>@p.TipoCamioneta</td>
+            <td>@p.PrecioPorDia.ToString("C")</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-warning" asp-page="Edit" asp-route-id="@p.Id">Editar</a>
+                <a class="btn btn-sm btn-danger" asp-page="Delete" asp-route-id="@p.Id">Eliminar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

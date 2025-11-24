@@ -223,6 +223,7 @@ facturas_group.MapPost("/", async (CrearFacturaRequest request, ComercialDbConte
         Monto = arriendo.PrecioTotal
     };
 
+
     db.Facturas.Add(factura);
     await db.SaveChangesAsync();
 
@@ -236,10 +237,10 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast = Enumerable.Range(1,5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast(
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20,55),
+            Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
         )
     ).ToArray();

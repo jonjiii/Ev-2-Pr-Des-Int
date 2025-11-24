@@ -1,0 +1,32 @@
+@page
+@model SistemaComercial.Web.Pages.Facturas.IndexModel
+
+<h2 class="mt-3">Facturas</h2>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Emitir Factura</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Patente</th>
+            <th>Total</th>
+            <th>Fecha Emisión</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var f in Model.ListaFacturas)
+        {
+            <tr>
+                <td>@f.Id</td>
+                <td>@f.Arriendo?.Cliente?.Nombre</td>
+                <td>@f.Arriendo?.Patente</td>
+                <td>@f.Monto.ToString("C")</td>
+                <td>@f.FechaEmision.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>

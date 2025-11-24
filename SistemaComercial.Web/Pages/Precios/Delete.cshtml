@@ -1,0 +1,21 @@
+@page "{id:int}"
+@model SistemaComercial.Web.Pages.Precios.DeleteModel
+
+<h2 class="mt-3">Eliminar Precio</h2>
+
+<h4>¿Seguro que deseas eliminar este precio?</h4>
+
+<div class="mt-3">
+    <dl class="row">
+        <dt class="col-sm-3">Tipo de Camioneta</dt>
+        <dd class="col-sm-9">@Model.Precio.TipoCamioneta</dd>
+
+        <dt class="col-sm-3">Precio por Día</dt>
+        <dd class="col-sm-9">@Model.Precio.PrecioPorDia.ToString("C")</dd>
+    </dl>
+</div>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+</form>
