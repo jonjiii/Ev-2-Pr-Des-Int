@@ -17,10 +17,17 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public FacturaInput Input { get; set; } = new FacturaInput();
+    public FacturaInput Input { get; set; } = new();
 
     public SelectList ArriendosSelect { get; set; } = null!;
-    public decimal TotalArriendo { get; set; }
+
+    // NUEVO → Total previo que se mostrará en la vista
+    public decimal? TotalPrevio { get; set; }
+
+    public class FacturaInput
+    {
+        public int ArriendoId { get; set; }
+    }
 
     public async Task OnGetAsync(int? arriendoId)
     {
@@ -28,11 +35,14 @@ public class CreateModel : PageModel
 
         if (arriendoId.HasValue)
         {
-            var arr = await _context.Arriendos.FindAsync(arriendoId.Value);
-            if (arr != null)
+            Input.ArriendoId = arriendoId.Value;
+
+            var arriendo = await _context.Arriendos
+                .FirstOrDefaultAsync(a => a.Id == arriendoId.Value);
+
+            if (arriendo != null)
             {
-                Input.ArriendoId = arr.Id;
-                TotalArriendo = arr.PrecioTotal;
+                TotalPrevio = arriendo.PrecioTotal;
             }
         }
     }
@@ -40,17 +50,17 @@ public class CreateModel : PageModel
     private async Task CargarArriendosAsync()
     {
         var arriendos = await _context.Arriendos
-            .Where(a => a.Factura == null) // solo arriendos sin facturar
+            .Where(a => a.Factura == null && a.FechaTermino != null)    // solo finalizados y sin factura
             .Include(a => a.Cliente)
             .OrderBy(a => a.FechaInicio)
             .ToListAsync();
 
         ArriendosSelect = new SelectList(
-            arriendos.Select(a =>
-                new {
-                    Id = a.Id,
-                    Texto = $"{a.Id} - {a.Cliente.Nombre} ({a.Patente})"
-                }),
+            arriendos.Select(a => new
+            {
+                a.Id,
+                Texto = $"{a.Id} — {a.Cliente.Nombre} ({a.Patente})"
+            }),
             "Id",
             "Texto"
         );
@@ -61,9 +71,7 @@ public class CreateModel : PageModel
         await CargarArriendosAsync();
 
         if (!ModelState.IsValid)
-        {
             return Page();
-        }
 
         var arriendo = await _context.Arriendos
             .Include(a => a.Factura)
@@ -77,7 +85,13 @@ public class CreateModel : PageModel
 
         if (arriendo.Factura != null)
         {
-            ModelState.AddModelError(string.Empty, "Ese arriendo ya está facturado.");
+            ModelState.AddModelError(string.Empty, "Ese arriendo ya tiene factura emitida.");
+            return Page();
+        }
+
+        if (arriendo.FechaTermino == null)
+        {
+            ModelState.AddModelError(string.Empty, "No se puede facturar un arriendo que aún no está finalizado.");
             return Page();
         }
 
@@ -85,18 +99,13 @@ public class CreateModel : PageModel
         {
             ArriendoId = arriendo.Id,
             Monto = arriendo.PrecioTotal,
-            FechaEmision = DateTime.Now
+            FechaEmision = DateTime.UtcNow
         };
-
 
         _context.Facturas.Add(factura);
         await _context.SaveChangesAsync();
 
         return RedirectToPage("Index");
     }
-
-    public class FacturaInput
-    {
-        public int ArriendoId { get; set; }
-    }
 }
+

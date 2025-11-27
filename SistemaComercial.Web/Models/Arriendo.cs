@@ -10,9 +10,7 @@ public class Arriendo
     public string Patente { get; set; } = "";
 
     public DateTime FechaInicio { get; set; }
-    public DateTime FechaTermino { get; set; }
-
+    public DateTime? FechaTermino { get; set; }
     public decimal PrecioTotal { get; set; }
-
     public Factura? Factura { get; set; }
 }

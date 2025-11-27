@@ -5,6 +5,15 @@ using SistemaComercial.Web.Services;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton(
+    new MantencionGrpcClient("https://localhost:7227")
+);
+
+builder.Services.AddHttpClient<CamionetasApiClient>(client =>
+{
+    // Camionetas API runs over plain HTTP (no TLS). Use HTTP to avoid SSL/frame errors.
+    client.BaseAddress = new Uri("http://localhost:5287");
+});
 
 // OpenAPI
 builder.Services.AddOpenApi();
@@ -18,8 +27,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddDbContext<ComercialDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddSingleton(new MantencionGrpcClient("http://localhost:5287"));
 
 var app = builder.Build();
 
@@ -140,6 +147,25 @@ arriendos_group.MapGet("/{id:int}", async (int id, ComercialDbContext db) =>
     return arriendo is not null ? Results.Ok(arriendo) : Results.NotFound();
 });
 
+arriendos_group.MapPost("/finalizar/{id:int}", async (int id, ComercialDbContext db, MantencionGrpcClient grpc) =>
+{
+    var arriendo = await db.Arriendos.FindAsync(id);
+    if (arriendo is null)
+        return Results.NotFound();
+
+    // Cambiar en mantención
+    var cambio = await grpc.CambiarEstado(arriendo.Patente, "Disponible");
+    if (!cambio.Success)
+        return Results.BadRequest(cambio.Message);
+
+    // (Opcional) marcar en BD como completado
+    arriendo.FechaTermino = DateTime.UtcNow;
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok();
+});
+
 arriendos_group.MapPost("/", async (
     CrearArriendoRequest request,
     ComercialDbContext db,
@@ -191,6 +217,7 @@ arriendos_group.MapPost("/", async (
     await db.SaveChangesAsync();
 
     return Results.Created($"/api/arriendos/{arriendo.Id}", arriendo);
+    
 });
 
 
@@ -259,3 +286,6 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 record CrearArriendoRequest(int ClienteId, string Patente, DateTime FechaInicio, DateTime FechaTermino, string TipoCamioneta);
 
 record CrearFacturaRequest(int ArriendoId);
+
+
+

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using SistemaComercial.Web.Data;
 using SistemaComercial.Web.Models;
 using SistemaComercial.Web.Services;
+using System.ComponentModel.DataAnnotations;
+using Camionetas.Grpc;
 
 namespace SistemaComercial.Web.Pages.Arriendos;
 
@@ -12,25 +14,46 @@ public class CreateModel : PageModel
 {
     private readonly ComercialDbContext _context;
     private readonly MantencionGrpcClient _mantencionGrpc;
+    private readonly CamionetasApiClient _camionetasApi;
 
-    public CreateModel(ComercialDbContext context, MantencionGrpcClient mantencionGrpc)
+    public CreateModel(
+        ComercialDbContext context,
+        MantencionGrpcClient mantencionGrpc,
+        CamionetasApiClient camionetasApi)
     {
         _context = context;
         _mantencionGrpc = mantencionGrpc;
+        _camionetasApi = camionetasApi;
     }
 
     [BindProperty]
-    public ArriendoInput Input { get; set; } = new ArriendoInput();
+    public ArriendoInput Input { get; set; } = new();
 
     public SelectList ClientesSelect { get; set; } = null!;
     public SelectList TiposCamionetaSelect { get; set; } = null!;
+    public SelectList CamionetasSelect { get; set; } = null!;   // 👈 NUEVO
+
+    public class ArriendoInput
+    {
+        [Required]
+        public int ClienteId { get; set; }
+
+        [Required]
+        public string Patente { get; set; } = string.Empty;
+
+        [Required]
+        public string TipoCamioneta { get; set; } = string.Empty;
+
+        [Required]
+        public DateTime FechaInicio { get; set; } = DateTime.Today;
+
+        [Required]
+        public DateTime FechaTermino { get; set; } = DateTime.Today.AddDays(1);
+    }
 
     public async Task OnGetAsync()
     {
         await CargarCombosAsync();
-        // valores por defecto
-        Input.FechaInicio = DateTime.Today;
-        Input.FechaTermino = DateTime.Today.AddDays(1);
     }
 
     private async Task CargarCombosAsync()
@@ -45,8 +68,16 @@ public class CreateModel : PageModel
             .OrderBy(t => t)
             .ToListAsync();
 
+        var camionetas = await _camionetasApi.GetDisponiblesAsync();
+
         ClientesSelect = new SelectList(clientes, "Id", "Nombre");
         TiposCamionetaSelect = new SelectList(tipos);
+
+        CamionetasSelect = new SelectList(
+            camionetas,
+            nameof(CamionetasApiClient.CamionetaDto.Patente),
+            nameof(CamionetasApiClient.CamionetaDto.Patente)
+        );
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -54,67 +85,84 @@ public class CreateModel : PageModel
         await CargarCombosAsync();
 
         if (!ModelState.IsValid)
+            return Page();
+
+        var inicioLocal = Input.FechaInicio.Date;
+        var terminoLocal = Input.FechaTermino.Date;
+
+        if (terminoLocal < inicioLocal)
         {
+            ModelState.AddModelError(string.Empty, "La fecha de término no puede ser anterior a la fecha de inicio.");
             return Page();
         }
 
-        // 1) Validar cliente
+        var inicioUtc = DateTime.SpecifyKind(inicioLocal, DateTimeKind.Utc);
+        var terminoUtc = DateTime.SpecifyKind(terminoLocal, DateTimeKind.Utc);
+
         var cliente = await _context.Clientes.FindAsync(Input.ClienteId);
         if (cliente is null)
         {
-            ModelState.AddModelError(string.Empty, $"No existe cliente con Id {Input.ClienteId}");
+            ModelState.AddModelError(string.Empty, "El cliente seleccionado no existe.");
             return Page();
         }
 
-        // 2) Validar camioneta en SISTEMA DE MANTENCIÓN (gRPC)
-        var estadoCamioneta = await _mantencionGrpc.ConsultarCamioneta(Input.Patente);
+        CamionetaEstadoResponse estadoCamioneta;
+        try
+        {
+            estadoCamioneta = await _mantencionGrpc.ConsultarCamioneta(Input.Patente);
+        }
+        catch
+        {
+            ModelState.AddModelError(string.Empty, "El sistema de mantención no está disponible. Intente más tarde.");
+            return Page();
+        }
 
         if (estadoCamioneta.Estado == "NoExiste")
         {
-            ModelState.AddModelError(string.Empty, $"La camioneta {Input.Patente} no existe en Mantención.");
+            ModelState.AddModelError(string.Empty, $"La camioneta con patente {Input.Patente} no existe en el sistema de mantención.");
             return Page();
         }
 
         if (!estadoCamioneta.Disponible)
         {
-            ModelState.AddModelError(string.Empty,
-                $"La camioneta {Input.Patente} está en estado {estadoCamioneta.Estado} y no está disponible para arriendo.");
+            var msg = estadoCamioneta.Estado switch
+            {
+                "En Mantencion" => $"La camioneta {Input.Patente} está en mantención y no puede ser arrendada.",
+                "En Arriendo" => $"La camioneta {Input.Patente} ya está en arriendo.",
+                _ => $"La camioneta {Input.Patente} no está disponible para arriendo. Estado actual: {estadoCamioneta.Estado}."
+            };
+
+            ModelState.AddModelError(string.Empty, msg);
             return Page();
         }
 
-        // 3) Cambiar estado a En Arriendo en Mantención (gRPC)
-        var cambio = await _mantencionGrpc.CambiarEstado(Input.Patente, "En Arriendo");
-        if (!cambio.Success)
-        {
-            ModelState.AddModelError(string.Empty, $"No se pudo cambiar estado en Mantención: {cambio.Message}");
-            return Page();
-        }
-
-        // 4) Obtener precio según tipo de camioneta
         var precio = await _context.PreciosArriendo
             .FirstOrDefaultAsync(p => p.TipoCamioneta == Input.TipoCamioneta);
 
         if (precio is null)
         {
-            ModelState.AddModelError(string.Empty, "No existe precio configurado para ese tipo de camioneta.");
+            ModelState.AddModelError(string.Empty, "No existe un precio configurado para ese tipo de camioneta.");
             return Page();
         }
 
-        // 5) Calcular días y total
-        var inicio = Input.FechaInicio.Date;
-        var termino = Input.FechaTermino.Date;
-        var dias = (termino - inicio).Days;
+        var dias = (terminoUtc - inicioUtc).Days;
         if (dias <= 0) dias = 1;
 
         var total = dias * precio.PrecioPorDia;
 
-        // 6) Crear arriendo
+        var cambio = await _mantencionGrpc.CambiarEstado(Input.Patente, "En Arriendo");
+        if (!cambio.Success)
+        {
+            ModelState.AddModelError(string.Empty, $"No se pudo cambiar el estado de la camioneta en mantención: {cambio.Message}");
+            return Page();
+        }
+
         var arriendo = new Arriendo
         {
             ClienteId = Input.ClienteId,
             Patente = Input.Patente,
-            FechaInicio = inicio,
-            FechaTermino = termino,
+            FechaInicio = inicioUtc,
+            FechaTermino = terminoUtc,
             PrecioTotal = total
         };
 
@@ -122,15 +170,5 @@ public class CreateModel : PageModel
         await _context.SaveChangesAsync();
 
         return RedirectToPage("Index");
-    }
-
-    // ViewModel para el formulario
-    public class ArriendoInput
-    {
-        public int ClienteId { get; set; }
-        public string Patente { get; set; } = string.Empty;
-        public DateTime FechaInicio { get; set; }
-        public DateTime FechaTermino { get; set; }
-        public string TipoCamioneta { get; set; } = string.Empty;
     }
 }

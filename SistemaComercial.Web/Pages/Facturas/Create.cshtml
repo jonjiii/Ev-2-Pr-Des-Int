@@ -1,21 +1,29 @@
-@page "{arriendoId?}"
+@page
 @model SistemaComercial.Web.Pages.Facturas.CreateModel
 
 <h2 class="mt-3">Emitir Factura</h2>
 
-<form method="post" class="mt-3">
+<form method="post">
+
     <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="mb-3">
         <label class="form-label">Arriendo</label>
-        <select asp-for="Input.ArriendoId" asp-items="Model.ArriendosSelect" class="form-select"></select>
+        <select asp-for="Input.ArriendoId" asp-items="Model.ArriendosSelect" class="form-select"
+                onchange="actualizarTotal(this.value)">
+        </select>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Total del Arriendo</label>
-        <input class="form-control" value="@Model.TotalArriendo.ToString("C")" disabled />
-    </div>
+    @* Mostrar el total si ya se seleccionó un arriendo *@
+    @if (Model.TotalPrevio.HasValue)
+    {
+        <div class="alert alert-info">
+            <strong>Total a facturar:</strong>
+            @Model.TotalPrevio.Value.ToString("C")
+        </div>
+    }
 
-    <button type="submit" class="btn btn-success">Emitir Factura</button>
+    <button type="submit" class="btn btn-success">Emitir factura</button>
     <a asp-page="Index" class="btn btn-secondary">Volver</a>
 </form>
+
