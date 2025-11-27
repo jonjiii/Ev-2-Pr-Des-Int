@@ -8,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 // OpenAPI
 builder.Services.AddOpenApi();
 
+// Razor Pages
+builder.Services.AddRazorPages();
+
 // DbContext Mantención
 builder.Services.AddDbContext<MantencionDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -27,7 +30,7 @@ using (var scope = app.Services.CreateScope())
 // Mapear servicio gRPC
 app.MapGrpcService<MantencionGrpcService>();
 
-// OpenAPI
+// OpenAPI (solo dev)
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -35,9 +38,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// ====== ENDPOINT BÁSICO ======
-app.MapGet("/", () => "Sistema de Mantención OK");
+app.MapRazorPages();
 
+app.MapGet("/", () => "Sistema de Mantención OK");
 
 // ENDPOINTS HTTP — CAMIONETAS
 var camionetas_group = app.MapGroup("/api/camionetas");

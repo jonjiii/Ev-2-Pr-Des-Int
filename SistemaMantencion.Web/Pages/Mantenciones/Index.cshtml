@@ -1,0 +1,28 @@
+@page
+@model SistemaMantencion.Web.Pages.Mantenciones.IndexModel
+
+<h2 class="mt-3">Historial de Mantenciones</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Patente</th>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Kilometraje</th>
+            <th>Detalle</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model.Lista)
+        {
+            <tr>
+                <td>@m.Camioneta.Patente</td>
+                <td>@m.Fecha.ToShortDateString()</td>
+                <td>@m.Tipo</td>
+                <td>@m.Kilometraje km</td>
+                <td>@m.Detalle</td>
+            </tr>
+        }
+    </tbody>
+</table>

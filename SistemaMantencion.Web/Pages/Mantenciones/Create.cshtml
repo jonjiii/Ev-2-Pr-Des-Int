@@ -1,0 +1,40 @@
+@page "{camionetaId:int}"
+@model SistemaMantencion.Web.Pages.Mantenciones.CreateModel
+
+<h2 class="mt-3">Registrar Mantención</h2>
+
+<p>
+    Camioneta: <strong>@Model.Camioneta.Patente</strong>
+</p>
+
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Input.CamionetaId" />
+
+    <div class="mb-3">
+        <label class="form-label">Fecha</label>
+        <input asp-for="Input.Fecha" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tipo</label>
+        <select asp-for="Input.Tipo" class="form-select">
+            <option value="Preventiva">Preventiva</option>
+            <option value="Correctiva">Correctiva</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Kilometraje</label>
+        <input asp-for="Input.Kilometraje" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Detalle</label>
+        <textarea asp-for="Input.Detalle" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-success" type="submit">Guardar</button>
+    <a asp-page="/Camionetas/Details" asp-route-id="@Model.Camioneta.Id" class="btn btn-secondary">Volver</a>
+</form>

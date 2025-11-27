@@ -1,0 +1,19 @@
+@page
+@model SistemaMantencion.Web.Pages.Camionetas.CreateModel
+
+<h2 class="mt-3">Nueva Camioneta</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="Camioneta.Patente" class="form-label"></label>
+        <input asp-for="Camioneta.Patente" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Camioneta.Kilometraje" class="form-label"></label>
+        <input asp-for="Camioneta.Kilometraje" class="form-control" />
+    </div>
+
+    <button class="btn btn-success" type="submit">Guardar</button>
+    <a asp-page="Index" class="btn btn-secondary">Volver</a>
+</form>

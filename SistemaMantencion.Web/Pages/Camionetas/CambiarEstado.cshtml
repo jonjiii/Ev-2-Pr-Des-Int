@@ -1,0 +1,14 @@
+@page "{id:int}/{nuevoEstado}"
+@model SistemaMantencion.Web.Pages.Camionetas.CambiarEstadoModel
+
+<h2 class="mt-3">Cambiar Estado de Camioneta</h2>
+
+<p class="mb-3">¿Confirmas cambiar la camioneta <strong>@Model.Camioneta.Patente</strong> al estado <strong>@Model.NuevoEstado</strong>?</p>
+
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="NuevoEstado" />
+
+    <button type="submit" class="btn btn-success">Confirmar</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+</form>

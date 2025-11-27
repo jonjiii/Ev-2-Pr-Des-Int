@@ -1,0 +1,63 @@
+@page "{id:int}"
+@model SistemaMantencion.Web.Pages.Camionetas.DetailsModel
+
+<h2 class="mt-3">Detalle de Camioneta</h2>
+
+<div class="mt-3">
+    <dl class="row">
+        <dt class="col-sm-3">Patente</dt>
+        <dd class="col-sm-9">@Model.Camioneta.Patente</dd>
+
+        <dt class="col-sm-3">Kilometraje</dt>
+        <dd class="col-sm-9">@Model.Camioneta.Kilometraje km</dd>
+
+        <dt class="col-sm-3">Estado</dt>
+        <dd class="col-sm-9">@Model.Camioneta.Estado</dd>
+
+        <dt class="col-sm-3">Disponible para arriendo</dt>
+        <dd class="col-sm-9">@((Model.Camioneta.DisponibleParaArriendo) ? "Sí" : "No")</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-page="Edit" asp-route-id="@Model.Camioneta.Id" class="btn btn-warning">Editar</a>
+    <a asp-page="Index" class="btn btn-secondary">Volver</a>
+
+</p>
+
+<p>
+    <a asp-page="/Mantenciones/Index" class="btn btn-primary">Ver Todas las Mantenciones</a>
+    <a asp-page="/Mantenciones/Create" asp-route-camionetaId="@Model.Camioneta.Id" class="btn btn-success">Agregar Mantención</a>
+</p>
+
+
+<h3>Historial de Mantenciones</h3>
+
+@if (!Model.Mantenciones.Any())
+{
+    <p>No hay mantenciones registradas.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Kilometraje</th>
+                <th>Detalle</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Mantenciones)
+            {
+                <tr>
+                    <td>@m.Fecha.ToShortDateString()</td>
+                    <td>@m.Tipo</td>
+                    <td>@m.Kilometraje km</td>
+                    <td>@m.Detalle</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

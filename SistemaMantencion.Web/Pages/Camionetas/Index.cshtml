@@ -1,0 +1,68 @@
+@page
+@model SistemaMantencion.Web.Pages.Camionetas.IndexModel
+
+<h2 class="mt-3">Camionetas</h2>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">Nueva Camioneta</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Patente</th>
+            <th>Kilometraje</th>
+            <th>Estado</th>
+            <th>Disponible</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.Lista)
+        {
+            <tr>
+                <td>@c.Patente</td>
+                <td>@c.Kilometraje km</td>
+                <td>@c.Estado</td>
+                <td>@(c.DisponibleParaArriendo ? "Sí" : "No")</td>
+                <td class="text-end">
+                    <a asp-page="Details" asp-route-id="@c.Id" class="btn btn-sm btn-info">Detalles</a>
+                    <a asp-page="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-warning">Editar</a>
+
+                    @* Botones de cambio de estado *@
+                    @if (c.Estado != "En Mantencion")
+                    {
+                        <a asp-page="CambiarEstado"
+                           asp-route-id="@c.Id"
+                           asp-route-nuevoEstado="En Mantencion"
+                           class="btn btn-sm btn-secondary">
+                            A Mantención
+                        </a>
+                    }
+
+                    @if (c.Estado != "Disponible")
+                    {
+                        <a asp-page="CambiarEstado"
+                           asp-route-id="@c.Id"
+                           asp-route-nuevoEstado="Disponible"
+                           class="btn btn-sm btn-success">
+                            Disponible
+                        </a>
+                    }
+
+                    @if (c.Estado != "En Arriendo")
+                    {
+                        <a asp-page="CambiarEstado"
+                           asp-route-id="@c.Id"
+                           asp-route-nuevoEstado="En Arriendo"
+                           class="btn btn-sm btn-dark">
+                            En Arriendo
+                        </a>
+                    }
+
+                    <a asp-page="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

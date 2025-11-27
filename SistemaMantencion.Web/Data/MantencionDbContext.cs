@@ -10,6 +10,7 @@ public class MantencionDbContext : DbContext
     {
     }
 
-    public DbSet<Camioneta> Camionetas => Set<Camioneta>();
-    public DbSet<Mantencion> Mantenciones => Set<Mantencion>();
+    public DbSet<Camioneta> Camionetas { get; set; } = null!;
+    public DbSet<Mantencion> Mantenciones { get; set; } = null!;
+
 }
