@@ -5,8 +5,14 @@ using SistemaComercial.Web.Services;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+    
+var mantencion_base_address = builder.Configuration["Grpc:MantencionBaseAddress"]
+    ?? throw new InvalidOperationException("Grpc:MantencionBaseAddress no configurado");
+
 builder.Services.AddSingleton(
-    new MantencionGrpcClient("https://localhost:7227")
+    new MantencionGrpcClient(mantencion_base_address)
 );
 
 builder.Services.AddHttpClient<CamionetasApiClient>(client =>
@@ -40,8 +46,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
-app.UseHttpsRedirection();
 
 app.MapRazorPages();
 

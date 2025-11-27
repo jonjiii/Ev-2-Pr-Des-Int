@@ -36,8 +36,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
 app.MapRazorPages();
 
 app.MapGet("/", () => "Sistema de Mantención OK");
