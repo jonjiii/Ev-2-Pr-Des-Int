@@ -3,22 +3,19 @@ using SistemaComercial.Web.Data;
 using SistemaComercial.Web.Models;
 using SistemaComercial.Web.Services;
 using System.Text.Json.Serialization;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
-AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-    
-var mantencion_base_address = builder.Configuration["Grpc:MantencionBaseAddress"]
-    ?? throw new InvalidOperationException("Grpc:MantencionBaseAddress no configurado");
-
 builder.Services.AddSingleton(
-    new MantencionGrpcClient(mantencion_base_address)
+    new MantencionGrpcClient("https://localhost:7227")
 );
 
 builder.Services.AddHttpClient<CamionetasApiClient>(client =>
 {
-    // Camionetas API runs over plain HTTP (no TLS). Use HTTP to avoid SSL/frame errors.
     client.BaseAddress = new Uri("http://localhost:5287");
+    client.DefaultRequestVersion = HttpVersion.Version11;
+    client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
 });
 
 // OpenAPI
@@ -254,7 +251,6 @@ facturas_group.MapPost("/", async (CrearFacturaRequest request, ComercialDbConte
         Monto = arriendo.PrecioTotal
     };
 
-
     db.Facturas.Add(factura);
     await db.SaveChangesAsync();
 
@@ -290,6 +286,3 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 record CrearArriendoRequest(int ClienteId, string Patente, DateTime FechaInicio, DateTime FechaTermino, string TipoCamioneta);
 
 record CrearFacturaRequest(int ArriendoId);
-
-
-

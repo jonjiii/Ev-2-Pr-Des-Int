@@ -40,21 +40,15 @@ app.MapRazorPages();
 
 app.MapGet("/", () => "Sistema de Mantención OK");
 
-// ENDPOINTS — CAMIONETAS (REST for other services)
+// ENDPOINTS — CAMIONETAS
 var camionetas_group = app.MapGroup("/api/camionetas");
 
-camionetas_group.MapGet("/", async (SistemaMantencion.Web.Data.MantencionDbContext db) =>
+camionetas_group.MapGet("/", async (MantencionDbContext db) =>
     await db.Camionetas.AsNoTracking()
         .Select(c => new { c.Id, c.Patente, c.Estado, c.DisponibleParaArriendo })
         .ToListAsync());
 
-camionetas_group.MapGet("/{id:int}", async (int id, SistemaMantencion.Web.Data.MantencionDbContext db) =>
-{
-    var cam = await db.Camionetas.FindAsync(id);
-    return cam is not null ? Results.Ok(cam) : Results.NotFound();
-});
-
-camionetas_group.MapGet("/patente/{patente}", async (string patente, SistemaMantencion.Web.Data.MantencionDbContext db) =>
+camionetas_group.MapGet("/patente/{patente}", async (string patente, MantencionDbContext db) =>
 {
     var cam = await db.Camionetas.FirstOrDefaultAsync(c => c.Patente == patente);
     return cam is not null ? Results.Ok(cam) : Results.NotFound();

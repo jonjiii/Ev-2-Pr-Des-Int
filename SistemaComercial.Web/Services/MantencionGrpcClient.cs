@@ -13,6 +13,7 @@ public class MantencionGrpcClient
         _client = new MantencionService.MantencionServiceClient(channel);
     }
 
+
     public Task<CamionetaEstadoResponse> ConsultarCamioneta(string patente)
     {
         return _client.ConsultarCamionetaAsync(new CamionetaRequest

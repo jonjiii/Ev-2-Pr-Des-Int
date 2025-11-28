@@ -111,11 +111,13 @@ public class CreateModel : PageModel
         {
             estadoCamioneta = await _mantencionGrpc.ConsultarCamioneta(Input.Patente);
         }
-        catch
+        catch (Exception ex)
         {
-            ModelState.AddModelError(string.Empty, "El sistema de mantención no está disponible. Intente más tarde.");
+            ModelState.AddModelError(string.Empty,
+                $"Error al contactar sistema de mantención: {ex.Message}");
             return Page();
         }
+
 
         if (estadoCamioneta.Estado == "NoExiste")
         {
