@@ -7,11 +7,11 @@ using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var mantencionUrl = builder.Configuration.GetSection("Grpc")["MantencionUrl"]
-                   ?? "https://localhost:7227";
+var mantencion_url = builder.Configuration.GetSection("Grpc")["MantencionUrl"]
+                    ?? "https://localhost:7227";
 
 builder.Services.AddSingleton(
-    new MantencionGrpcClient(mantencionUrl)
+    new MantencionGrpcClient(mantencion_url)
 );
 
 builder.Services.AddHttpClient<CamionetasApiClient>(client =>

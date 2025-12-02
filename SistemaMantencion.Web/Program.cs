@@ -38,8 +38,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapRazorPages();
 
-app.MapGet("/", () => "Sistema de Mantención OK");
-
 // ===============================
 //   ENDPOINTS — CAMIONETAS (API)
 // ===============================
