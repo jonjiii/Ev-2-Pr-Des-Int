@@ -3,7 +3,6 @@ using SistemaComercial.Web.Data;
 using SistemaComercial.Web.Models;
 using SistemaComercial.Web.Services;
 using System.Text.Json.Serialization;
-using SistemaComercial.Web.Models;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);

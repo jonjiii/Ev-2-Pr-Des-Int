@@ -4,59 +4,64 @@
 <div class="mt-4">
     <h1 class="mb-3">Sistema Comercial</h1>
     <p class="text-muted">
-        Bienvenido al sistema comercial de arriendo de camionetas. Desde aquí puedes gestionar clientes,
-        precios de arriendo, contratos y facturación.
+        Gestiona clientes, arriendos, precios y facturas de camionetas.
     </p>
 
-    <div class="row mt-4">
-
-        <div class="col-md-3 mb-3">
+    <div class="row g-3 mt-3">
+        <div class="col-md-3">
             <div class="card h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Clientes</h5>
-                    <p class="card-text flex-grow-1">
-                        Mantén el registro de los clientes que arriendan camionetas.
+                    <p class="card-text small text-muted">
+                        Registra y actualiza los datos de los clientes.
                     </p>
-                    <a asp-page="/Clientes/Index" class="btn btn-primary mt-auto">Ver clientes</a>
+                    <a asp-page="/Clientes/Index" class="btn btn-primary mt-auto">
+                        Ir a Clientes
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Precios de Arriendo</h5>
-                    <p class="card-text flex-grow-1">
-                        Configura los precios diarios por tipo de camioneta.
-                    </p>
-                    <a asp-page="/Precios/Index" class="btn btn-outline-primary mt-auto">Ver precios</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
+        <div class="col-md-3">
             <div class="card h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Arriendos</h5>
-                    <p class="card-text flex-grow-1">
-                        Registra nuevos arriendos y finaliza contratos activos.
+                    <p class="card-text small text-muted">
+                        Crea y finaliza arriendos de camionetas.
                     </p>
-                    <a asp-page="/Arriendos/Index" class="btn btn-outline-primary mt-auto">Ver arriendos</a>
+                    <a asp-page="/Arriendos/Index" class="btn btn-outline-primary mt-auto">
+                        Ir a Arriendos
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
+        <div class="col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Precios</h5>
+                    <p class="card-text small text-muted">
+                        Mantén los valores por día según tipo de camioneta.
+                    </p>
+                    <a asp-page="/Precios/Index" class="btn btn-outline-primary mt-auto">
+                        Ir a Precios
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
             <div class="card h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Facturas</h5>
-                    <p class="card-text flex-grow-1">
-                        Emite facturas para los arriendos finalizados.
+                    <p class="card-text small text-muted">
+                        Emite y revisa las facturas asociadas a los arriendos.
                     </p>
-                    <a asp-page="/Facturas/Index" class="btn btn-outline-primary mt-auto">Ver facturas</a>
+                    <a asp-page="/Facturas/Index" class="btn btn-outline-primary mt-auto">
+                        Ir a Facturas
+                    </a>
                 </div>
             </div>
         </div>
-
     </div>
 </div>

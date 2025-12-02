@@ -56,6 +56,7 @@ public class EditModel : PageModel
             }
         }
 
+        TempData["Mensaje"] = "Precio de arriendo actualizado correctamente.";
         return RedirectToPage("Index");
     }
 }

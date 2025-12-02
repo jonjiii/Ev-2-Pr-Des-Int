@@ -31,6 +31,7 @@ public class CreateModel : PageModel
         _context.PreciosArriendo.Add(NuevoPrecio);
         await _context.SaveChangesAsync();
 
+        TempData["Mensaje"] = "Precio de arriendo creado correctamente.";
         return RedirectToPage("Index");
     }
 }
