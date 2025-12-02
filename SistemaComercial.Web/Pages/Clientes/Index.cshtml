@@ -3,28 +3,56 @@
 
 <h2 class="mt-3">Clientes</h2>
 
-<p>
+@if (TempData["Mensaje"] is string msg)
+{
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        @msg
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<p class="mt-3">
     <a class="btn btn-primary" asp-page="Create">Nuevo Cliente</a>
 </p>
 
-<table class="table table-striped">
+<table class="table table-striped align-middle">
     <thead>
         <tr>
             <th>Nombre</th>
             <th>RUT</th>
             <th>Teléfono</th>
             <th>Correo</th>
+            <th class="text-end">Acciones</th>
         </tr>
     </thead>
     <tbody>
-    @foreach (var c in Model.ListaClientes)
-    {
-        <tr>
-            <td>@c.Nombre</td>
-            <td>@c.Rut</td>
-            <td>@c.Telefono</td>
-            <td>@c.Correo</td>
-        </tr>
-    }
+        @if (!Model.ListaClientes.Any())
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted">
+                    No hay clientes registrados todavía.
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var c in Model.ListaClientes)
+            {
+                <tr>
+                    <td>@c.Nombre</td>
+                    <td>@c.Rut</td>
+                    <td>@c.Telefono</td>
+                    <td>@c.Correo</td>
+                    <td class="text-end">
+                        <a asp-page="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-warning me-1">
+                            Editar
+                        </a>
+                        <a asp-page="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-danger">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
     </tbody>
 </table>

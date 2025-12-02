@@ -1,0 +1,47 @@
+@page "{id:int}"
+@model SistemaComercial.Web.Pages.Clientes.EditModel
+
+<h2 class="mt-3">Editar Cliente</h2>
+
+<div class="row mt-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <input type="hidden" asp-for="Cliente.Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="Cliente.Nombre" class="form-label">Nombre</label>
+                        <input asp-for="Cliente.Nombre" class="form-control" />
+                        <span asp-validation-for="Cliente.Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Cliente.Rut" class="form-label">RUT</label>
+                        <input asp-for="Cliente.Rut" class="form-control" />
+                        <span asp-validation-for="Cliente.Rut" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Cliente.Telefono" class="form-label">Teléfono</label>
+                        <input asp-for="Cliente.Telefono" class="form-control" />
+                        <span asp-validation-for="Cliente.Telefono" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Cliente.Correo" class="form-label">Correo electrónico</label>
+                        <input asp-for="Cliente.Correo" class="form-control" />
+                        <span asp-validation-for="Cliente.Correo" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-page="Index" class="btn btn-secondary">Volver</a>
+                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
