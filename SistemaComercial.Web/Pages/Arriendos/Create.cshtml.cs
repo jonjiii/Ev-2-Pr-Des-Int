@@ -30,8 +30,8 @@ public class CreateModel : PageModel
     public ArriendoInput Input { get; set; } = new();
 
     public SelectList ClientesSelect { get; set; } = null!;
-    public SelectList TiposCamionetaSelect { get; set; } = null!;
-    public SelectList CamionetasSelect { get; set; } = null!;   // 👈 NUEVO
+    public SelectList PreciosSelect { get; set; } = null!;
+    public SelectList CamionetasSelect { get; set; } = null!;
 
     public class ArriendoInput
     {
@@ -42,7 +42,7 @@ public class CreateModel : PageModel
         public string Patente { get; set; } = string.Empty;
 
         [Required]
-        public string TipoCamioneta { get; set; } = string.Empty;
+        public int PrecioArriendoId { get; set; }
 
         [Required]
         public DateTime FechaInicio { get; set; } = DateTime.Today;
@@ -62,16 +62,24 @@ public class CreateModel : PageModel
             .OrderBy(c => c.Nombre)
             .ToListAsync();
 
-        var tipos = await _context.PreciosArriendo
-            .Select(p => p.TipoCamioneta)
-            .Distinct()
-            .OrderBy(t => t)
+        var precios = await _context.PreciosArriendo
+            .OrderBy(p => p.TipoCamioneta)
             .ToListAsync();
 
         var camionetas = await _camionetasApi.GetDisponiblesAsync();
 
         ClientesSelect = new SelectList(clientes, "Id", "Nombre");
-        TiposCamionetaSelect = new SelectList(tipos);
+
+        // Texto amigable: "Tipo — $X/día"
+        PreciosSelect = new SelectList(
+            precios.Select(p => new
+            {
+                p.Id,
+                Texto = $"{p.TipoCamioneta} — {p.PrecioPorDia:C0}/día"
+            }),
+            "Id",
+            "Texto"
+        );
 
         CamionetasSelect = new SelectList(
             camionetas,
@@ -118,7 +126,6 @@ public class CreateModel : PageModel
             return Page();
         }
 
-
         if (estadoCamioneta.Estado == "NoExiste")
         {
             ModelState.AddModelError(string.Empty, $"La camioneta con patente {Input.Patente} no existe en el sistema de mantención.");
@@ -140,13 +147,11 @@ public class CreateModel : PageModel
             return Page();
         }
 
-
-        var precio = await _context.PreciosArriendo
-            .FirstOrDefaultAsync(p => p.TipoCamioneta == Input.TipoCamioneta);
-
+        // Obtener precio a partir del Id seleccionado
+        var precio = await _context.PreciosArriendo.FindAsync(Input.PrecioArriendoId);
         if (precio is null)
         {
-            ModelState.AddModelError(string.Empty, "No existe un precio configurado para ese tipo de camioneta.");
+            ModelState.AddModelError(string.Empty, "El precio seleccionado no existe.");
             return Page();
         }
 
@@ -168,6 +173,7 @@ public class CreateModel : PageModel
             Patente = Input.Patente,
             FechaInicio = inicioUtc,
             FechaTermino = terminoUtc,
+            PrecioArriendoId = precio.Id,
             PrecioTotal = total
         };
 

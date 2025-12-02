@@ -33,13 +33,14 @@
                     </div>
 
                     <div class="row">
-                        <!-- Tipo de camioneta -->
+                        <!-- Precio / Tipo de camioneta -->
                         <div class="mb-3 col-md-6">
-                            <label class="form-label">Tipo de camioneta</label>
-                            <select asp-for="Input.TipoCamioneta"
-                                    asp-items="Model.TiposCamionetaSelect"
+                            <label class="form-label">Tipo de camioneta / Precio por día</label>
+                            <select asp-for="Input.PrecioArriendoId"
+                                    asp-items="Model.PreciosSelect"
                                     class="form-select">
                             </select>
+                            <span asp-validation-for="Input.PrecioArriendoId" class="text-danger"></span>
                         </div>
                     </div>
 

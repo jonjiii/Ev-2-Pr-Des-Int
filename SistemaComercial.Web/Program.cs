@@ -14,7 +14,6 @@ builder.Services.AddSingleton(
     new MantencionGrpcClient(mantencionUrl)
 );
 
-
 builder.Services.AddHttpClient<CamionetasApiClient>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5287");
@@ -50,7 +49,9 @@ if (app.Environment.IsDevelopment())
 
 app.MapRazorPages();
 
+// ==============================
 // ENDPOINTS — CLIENTES
+// ==============================
 var clientes_group = app.MapGroup("/api/clientes");
 
 clientes_group.MapGet("/", async (ComercialDbContext db) =>
@@ -93,8 +94,9 @@ clientes_group.MapDelete("/{id:int}", async (int id, ComercialDbContext db) =>
     return Results.NoContent();
 });
 
-
+// ==============================
 // ENDPOINTS — PRECIOS
+// ==============================
 var precios_group = app.MapGroup("/api/precios");
 
 precios_group.MapGet("/", async (ComercialDbContext db) =>
@@ -135,23 +137,33 @@ precios_group.MapDelete("/{id:int}", async (int id, ComercialDbContext db) =>
     return Results.NoContent();
 });
 
-
-// ENDPOINTS — ARRIENDOS (con gRPC integrado)
+// ==============================
+// ENDPOINTS — ARRIENDOS
+//   (con gRPC integrado)
+// ==============================
 var arriendos_group = app.MapGroup("/api/arriendos");
 
+// GET /api/arriendos
 arriendos_group.MapGet("/", async (ComercialDbContext db) =>
-    await db.Arriendos.Include(a => a.Cliente).AsNoTracking().ToListAsync());
+    await db.Arriendos
+        .Include(a => a.Cliente)
+        .Include(a => a.PrecioArriendo)
+        .AsNoTracking()
+        .ToListAsync());
 
+// GET /api/arriendos/{id}
 arriendos_group.MapGet("/{id:int}", async (int id, ComercialDbContext db) =>
 {
     var arriendo = await db.Arriendos
         .Include(a => a.Cliente)
+        .Include(a => a.PrecioArriendo)
         .Include(a => a.Factura)
         .FirstOrDefaultAsync(a => a.Id == id);
 
     return arriendo is not null ? Results.Ok(arriendo) : Results.NotFound();
 });
 
+// POST /api/arriendos/finalizar/{id}
 arriendos_group.MapPost("/finalizar/{id:int}", async (int id, ComercialDbContext db, MantencionGrpcClient grpc) =>
 {
     var arriendo = await db.Arriendos.FindAsync(id);
@@ -163,7 +175,7 @@ arriendos_group.MapPost("/finalizar/{id:int}", async (int id, ComercialDbContext
     if (!cambio.Success)
         return Results.BadRequest(cambio.Message);
 
-    // (Opcional) marcar en BD como completado
+    // Marcar en BD como completado
     arriendo.FechaTermino = DateTime.UtcNow;
 
     await db.SaveChangesAsync();
@@ -171,6 +183,7 @@ arriendos_group.MapPost("/finalizar/{id:int}", async (int id, ComercialDbContext
     return Results.Ok();
 });
 
+// POST /api/arriendos  → crear arriendo nuevo
 arriendos_group.MapPost("/", async (
     CrearArriendoRequest request,
     ComercialDbContext db,
@@ -195,12 +208,12 @@ arriendos_group.MapPost("/", async (
     if (!cambio.Success)
         return Results.BadRequest($"No se pudo cambiar estado: {cambio.Message}");
 
-    // 4) Obtener precio
-    var precio = await db.PreciosArriendo.FirstOrDefaultAsync(p => p.TipoCamioneta == request.TipoCamioneta);
+    // 4) Obtener precio desde tabla PrecioArriendo (FK)
+    var precio = await db.PreciosArriendo.FindAsync(request.PrecioArriendoId);
     if (precio is null)
-        return Results.BadRequest("No existe precio para ese tipo de camioneta.");
+        return Results.BadRequest($"No existe precio con Id {request.PrecioArriendoId}");
 
-    // 5) Calcular
+    // 5) Calcular total
     var inicio = request.FechaInicio.Date;
     var termino = request.FechaTermino.Date;
     var dias = (termino - inicio).Days;
@@ -215,6 +228,7 @@ arriendos_group.MapPost("/", async (
         Patente = request.Patente,
         FechaInicio = inicio,
         FechaTermino = termino,
+        PrecioArriendoId = precio.Id,
         PrecioTotal = total
     };
 
@@ -222,25 +236,34 @@ arriendos_group.MapPost("/", async (
     await db.SaveChangesAsync();
 
     return Results.Created($"/api/arriendos/{arriendo.Id}", arriendo);
-    
 });
 
-
+// ==============================
 // ENDPOINTS — FACTURAS
+// ==============================
 var facturas_group = app.MapGroup("/api/facturas");
 
 facturas_group.MapGet("/", async (ComercialDbContext db) =>
-    await db.Facturas.Include(f => f.Arriendo).ThenInclude(a => a.Cliente).ToListAsync());
+    await db.Facturas
+        .Include(f => f.Arriendo)
+        .ThenInclude(a => a.Cliente)
+        .ToListAsync());
 
 facturas_group.MapGet("/{id:int}", async (int id, ComercialDbContext db) =>
 {
-    var factura = await db.Facturas.Include(f => f.Arriendo).ThenInclude(a => a.Cliente).FirstOrDefaultAsync(f => f.Id == id);
+    var factura = await db.Facturas
+        .Include(f => f.Arriendo)
+        .ThenInclude(a => a.Cliente)
+        .FirstOrDefaultAsync(f => f.Id == id);
+
     return factura is not null ? Results.Ok(factura) : Results.NotFound();
 });
 
 facturas_group.MapPost("/", async (CrearFacturaRequest request, ComercialDbContext db) =>
 {
-    var arriendo = await db.Arriendos.Include(a => a.Factura).FirstOrDefaultAsync(a => a.Id == request.ArriendoId);
+    var arriendo = await db.Arriendos
+        .Include(a => a.Factura)
+        .FirstOrDefaultAsync(a => a.Id == request.ArriendoId);
 
     if (arriendo is null)
         return Results.BadRequest($"No existe arriendo {request.ArriendoId}");
@@ -287,6 +310,13 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
 
-record CrearArriendoRequest(int ClienteId, string Patente, DateTime FechaInicio, DateTime FechaTermino, string TipoCamioneta);
+// Ahora el request usa PrecioArriendoId en vez de TipoCamioneta
+record CrearArriendoRequest(
+    int ClienteId,
+    string Patente,
+    DateTime FechaInicio,
+    DateTime FechaTermino,
+    int PrecioArriendoId
+);
 
 record CrearFacturaRequest(int ArriendoId);

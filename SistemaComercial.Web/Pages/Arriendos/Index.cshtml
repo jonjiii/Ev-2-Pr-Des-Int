@@ -1,21 +1,19 @@
 @page
 @model SistemaComercial.Web.Pages.Arriendos.IndexModel
 
-<h2 class="mt-3">Arriendos</h2>
-
-@if (TempData["Mensaje"] is string msg)
-{
-    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-        @msg
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-    </div>
+@{
+    ViewData["Title"] = "Arriendos";
 }
 
-<p class="mt-3">
-    <a asp-page="Create" class="btn btn-primary">Nuevo Arriendo</a>
-</p>
+<h2 class="mt-3">Arriendos</h2>
 
-<table class="table table-striped align-middle">
+<div class="mt-4">
+    <a asp-page="Create" class="btn btn-primary">
+        Nuevo Arriendo
+    </a>
+</div>
+
+<table class="table table-striped mt-4">
     <thead>
         <tr>
             <th>Cliente</th>
@@ -27,52 +25,47 @@
         </tr>
     </thead>
     <tbody>
-    @if (!(Model.Lista?.Any() ?? false))
+    @foreach (var item in Model.Arriendos)
     {
+        // Arriendo se considera finalizado SOLO si la fecha de término ya pasó o es hoy.
+        var estaFinalizado = item.FechaTermino.HasValue
+                             && item.FechaTermino.Value.Date <= DateTime.Today;
+
         <tr>
-            <td colspan="6" class="text-center text-muted">
-                No hay arriendos registrados todavía.
+            <td>@item.Cliente.Nombre</td>
+            <td>@item.Patente</td>
+            <td>@item.FechaInicio.ToString("dd-MM-yyyy")</td>
+            <td>
+                @if (item.FechaTermino.HasValue)
+                {
+                    @item.FechaTermino.Value.ToString("dd-MM-yyyy")
+                }
+                else
+                {
+                    <span>-</span>
+                }
+            </td>
+            <td>
+                @item.PrecioTotal.ToString("C0")
+            </td>
+            <td class="text-end">
+                @if (estaFinalizado)
+                {
+                    <span class="badge bg-secondary px-3 py-2">
+                        Finalizado
+                    </span>
+                }
+                else
+                {
+                    <!-- Aquí podrías enlazar a una página o acción para finalizar el arriendo -->
+                    <a asp-page="Finalizar"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-primary">
+                        Finalizar
+                    </a>
+                }
             </td>
         </tr>
-    }
-    else
-    {
-        @foreach (var a in Model.Lista)
-        {
-            <tr>
-                <td>@(a.Cliente?.Nombre ?? "Sin cliente")</td>
-                <td>@a.Patente</td>
-                <td>@a.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy")</td>
-                <td>
-                    @if (a.FechaTermino is null)
-                    {
-                        <span class="badge bg-info text-dark">En curso</span>
-                    }
-                    else
-                    {
-                        @a.FechaTermino.Value.ToLocalTime().ToString("dd/MM/yyyy")
-                    }
-                </td>
-                <td>@a.PrecioTotal.ToString("C0")</td>
-                <td class="text-end">
-                    @if (a.FechaTermino is null)
-                    {
-                        <form method="post"
-                              asp-page-handler="Finalizar"
-                              asp-route-id="@a.Id"
-                              class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-success">
-                                Finalizar
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Finalizado</span>
-                    }
-                </td>
-            </tr>
-        }
     }
     </tbody>
 </table>
