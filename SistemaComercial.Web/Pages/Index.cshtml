@@ -1,9 +1,62 @@
 @page
 @model SistemaComercial.Web.Pages.IndexModel
 
-<h1 class="mt-3">Sistema Comercial</h1>
-<p>Bienvenido al sistema comercial de arriendo de camionetas.</p>
+<div class="mt-4">
+    <h1 class="mb-3">Sistema Comercial</h1>
+    <p class="text-muted">
+        Bienvenido al sistema comercial de arriendo de camionetas. Desde aquí puedes gestionar clientes,
+        precios de arriendo, contratos y facturación.
+    </p>
 
-<ul>
-    <li><a asp-page="/Clientes/Index">Gestión de Clientes</a></li>
-</ul>
+    <div class="row mt-4">
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Clientes</h5>
+                    <p class="card-text flex-grow-1">
+                        Mantén el registro de los clientes que arriendan camionetas.
+                    </p>
+                    <a asp-page="/Clientes/Index" class="btn btn-primary mt-auto">Ver clientes</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Precios de Arriendo</h5>
+                    <p class="card-text flex-grow-1">
+                        Configura los precios diarios por tipo de camioneta.
+                    </p>
+                    <a asp-page="/Precios/Index" class="btn btn-outline-primary mt-auto">Ver precios</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Arriendos</h5>
+                    <p class="card-text flex-grow-1">
+                        Registra nuevos arriendos y finaliza contratos activos.
+                    </p>
+                    <a asp-page="/Arriendos/Index" class="btn btn-outline-primary mt-auto">Ver arriendos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Facturas</h5>
+                    <p class="card-text flex-grow-1">
+                        Emite facturas para los arriendos finalizados.
+                    </p>
+                    <a asp-page="/Facturas/Index" class="btn btn-outline-primary mt-auto">Ver facturas</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

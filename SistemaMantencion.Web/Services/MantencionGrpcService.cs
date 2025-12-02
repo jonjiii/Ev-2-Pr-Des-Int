@@ -1,6 +1,7 @@
 using Camionetas.Grpc;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
+using SistemaMantencion.Web.Models;
 using SistemaMantencion.Web.Data;
 
 namespace SistemaMantencion.Web.Services;
@@ -58,7 +59,7 @@ public class MantencionGrpcService : MantencionService.MantencionServiceBase
 
         // Propiedad correcta: request.NuevoEstado
         cam.Estado = request.NuevoEstado;
-        cam.DisponibleParaArriendo = request.NuevoEstado == "Disponible";
+        cam.DisponibleParaArriendo = request.NuevoEstado == EstadoCamioneta.Disponible;
 
         await _db.SaveChangesAsync();
 

@@ -3,13 +3,18 @@ using SistemaComercial.Web.Data;
 using SistemaComercial.Web.Models;
 using SistemaComercial.Web.Services;
 using System.Text.Json.Serialization;
+using SistemaComercial.Web.Models;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var mantencionUrl = builder.Configuration.GetSection("Grpc")["MantencionUrl"]
+                   ?? "https://localhost:7227";
+
 builder.Services.AddSingleton(
-    new MantencionGrpcClient("https://localhost:7227")
+    new MantencionGrpcClient(mantencionUrl)
 );
+
 
 builder.Services.AddHttpClient<CamionetasApiClient>(client =>
 {
@@ -155,7 +160,7 @@ arriendos_group.MapPost("/finalizar/{id:int}", async (int id, ComercialDbContext
         return Results.NotFound();
 
     // Cambiar en mantención
-    var cambio = await grpc.CambiarEstado(arriendo.Patente, "Disponible");
+    var cambio = await grpc.CambiarEstado(arriendo.Patente, EstadoCamioneta.Disponible);
     if (!cambio.Success)
         return Results.BadRequest(cambio.Message);
 
@@ -187,7 +192,7 @@ arriendos_group.MapPost("/", async (
         return Results.BadRequest($"La camioneta {request.Patente} está en estado {estadoCamioneta.Estado}.");
 
     // 3) Cambiar estado a EnArriendo en Mantención (gRPC)
-    var cambio = await mantencionGrpc.CambiarEstado(request.Patente, "En Arriendo");
+    var cambio = await mantencionGrpc.CambiarEstado(request.Patente, EstadoCamioneta.EnArriendo);
     if (!cambio.Success)
         return Results.BadRequest($"No se pudo cambiar estado: {cambio.Message}");
 

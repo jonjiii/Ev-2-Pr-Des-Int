@@ -28,27 +28,42 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var a in Model.Lista)
+        @if (!Model.Lista.Any())
         {
             <tr>
-                <td>@a.Cliente?.Nombre</td>
-                <td>@a.Patente</td>
-                <td>@a.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy")</td>
-                @(
-                            a.FechaTermino is null 
-                    ? "En curso"
-                    : a.FechaTermino.Value.ToLocalTime().ToString("dd/MM/yyyy")
-                            )
-
-                <td>@a.PrecioTotal.ToString("C0")</td>
-                <td class="text-end">
-                    <form method="post" asp-page-handler="Finalizar" asp-route-id="@a.Id" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-success">
-                            Finalizar
-                        </button>
-                    </form>
+                <td colspan="6" class="text-center text-muted">
+                    No hay arriendos registrados todavía.
                 </td>
             </tr>
+        }
+        else
+        {
+            @foreach (var a in Model.Lista)
+            {
+                <tr>
+                    <td>@a.Cliente?.Nombre</td>
+                    <td>@a.Patente</td>
+                    <td>@a.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (a.FechaTermino is null)
+                        {
+                            <span class="badge bg-info text-dark">En curso</span>
+                        }
+                        else
+                        {
+                            @a.FechaTermino.Value.ToLocalTime().ToString("dd/MM/yyyy")
+                        }
+                    </td>
+                    <td>@a.PrecioTotal.ToString("C0")</td>
+                    <td class="text-end">
+                        <form method="post" asp-page-handler="Finalizar" asp-route-id="@a.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-success">
+                                Finalizar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

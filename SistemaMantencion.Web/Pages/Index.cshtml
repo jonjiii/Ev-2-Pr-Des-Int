@@ -1,9 +1,52 @@
 @page
-<h1 class="mt-3">Sistema de Mantención</h1>
 
-<p>Bienvenido. Desde aquí puede gestionar camionetas y mantenciones.</p>
+<div class="mt-4">
+    <h1 class="mb-3">Sistema de Mantención</h1>
+    <p class="text-muted">
+        Administra las camionetas de la empresa, su estado y el historial de mantenciones.
+    </p>
 
-<ul>
-    <li><a asp-page="/Camionetas/Index">Listado de Camionetas</a></li>
-    <li><a asp-page="/Mantenciones/Index">Historial de Mantenciones</a></li>
-</ul>
+    <div class="row mt-4">
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Camionetas</h5>
+                    <p class="card-text flex-grow-1">
+                        Visualiza todas las camionetas, su estado actual y disponibilidad para arriendo.
+                    </p>
+                    <a asp-page="/Camionetas/Index" class="btn btn-primary mt-auto">Ver camionetas</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Mantenciones</h5>
+                    <p class="card-text flex-grow-1">
+                        Revisa el historial de mantenciones preventivas y correctivas realizadas.
+                    </p>
+                    <a asp-page="/Mantenciones/Index" class="btn btn-outline-primary mt-auto">Ver mantenciones</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Estado General</h5>
+                    <p class="card-text flex-grow-1">
+                        Usa este sistema como fuente de verdad para la disponibilidad de las camionetas
+                        que consume el sistema comercial.
+                    </p>
+                    <a asp-page="/Camionetas/Index" class="btn btn-outline-secondary mt-auto">
+                        Ir al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+

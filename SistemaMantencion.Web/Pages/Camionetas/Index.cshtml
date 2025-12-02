@@ -1,5 +1,6 @@
 @page
 @model SistemaMantencion.Web.Pages.Camionetas.IndexModel
+@using SistemaMantencion.Web.Models
 
 <h2 class="mt-3">Camionetas</h2>
 
@@ -18,51 +19,93 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var c in Model.Lista)
+        @if (!Model.Lista.Any())
         {
             <tr>
-                <td>@c.Patente</td>
-                <td>@c.Kilometraje km</td>
-                <td>@c.Estado</td>
-                <td>@(c.DisponibleParaArriendo ? "Sí" : "No")</td>
-                <td class="text-end">
-                    <a asp-page="Details" asp-route-id="@c.Id" class="btn btn-sm btn-info">Detalles</a>
-                    <a asp-page="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-warning">Editar</a>
-
-                    @* Botones de cambio de estado *@
-                    @if (c.Estado != "En Mantencion")
-                    {
-                        <a asp-page="CambiarEstado"
-                           asp-route-id="@c.Id"
-                           asp-route-nuevoEstado="En Mantencion"
-                           class="btn btn-sm btn-secondary">
-                            A Mantención
-                        </a>
-                    }
-
-                    @if (c.Estado != "Disponible")
-                    {
-                        <a asp-page="CambiarEstado"
-                           asp-route-id="@c.Id"
-                           asp-route-nuevoEstado="Disponible"
-                           class="btn btn-sm btn-success">
-                            Disponible
-                        </a>
-                    }
-
-                    @if (c.Estado != "En Arriendo")
-                    {
-                        <a asp-page="CambiarEstado"
-                           asp-route-id="@c.Id"
-                           asp-route-nuevoEstado="En Arriendo"
-                           class="btn btn-sm btn-dark">
-                            En Arriendo
-                        </a>
-                    }
-
-                    <a asp-page="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                <td colspan="5" class="text-center text-muted">
+                    No hay camionetas registradas aún.
                 </td>
             </tr>
+        }
+        else
+        {
+            @foreach (var c in Model.Lista)
+            {
+                <tr>
+                    <td>@c.Patente</td>
+                    <td>@c.Kilometraje km</td>
+
+                    @* Estado con badge *@
+                    <td>
+                        @if (c.Estado == EstadoCamioneta.Disponible)
+                        {
+                            <span class="badge bg-success">Disponible</span>
+                        }
+                        else if (c.Estado == EstadoCamioneta.EnArriendo)
+                        {
+                            <span class="badge bg-dark">En arriendo</span>
+                        }
+                        else if (c.Estado == EstadoCamioneta.EnMantencion)
+                        {
+                            <span class="badge bg-warning text-dark">En mantención</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@c.Estado</span>
+                        }
+                    </td>
+
+                    @* Disponible para arriendo con badge *@
+                    <td>
+                        @if (c.DisponibleParaArriendo)
+                        {
+                            <span class="badge bg-success">Sí</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">No</span>
+                        }
+                    </td>
+
+                    <td class="text-end">
+                        <a asp-page="Details" asp-route-id="@c.Id" class="btn btn-sm btn-info">Detalles</a>
+                        <a asp-page="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-warning">Editar</a>
+
+                        @* Botones de cambio de estado usando constantes *@
+                        @if (c.Estado != EstadoCamioneta.EnMantencion)
+                        {
+                            <a asp-page="CambiarEstado"
+                               asp-route-id="@c.Id"
+                               asp-route-nuevoEstado="@EstadoCamioneta.EnMantencion"
+                               class="btn btn-sm btn-secondary">
+                                A Mantención
+                            </a>
+                        }
+
+                        @if (c.Estado != EstadoCamioneta.Disponible)
+                        {
+                            <a asp-page="CambiarEstado"
+                               asp-route-id="@c.Id"
+                               asp-route-nuevoEstado="@EstadoCamioneta.Disponible"
+                               class="btn btn-sm btn-success">
+                                Disponible
+                            </a>
+                        }
+
+                        @if (c.Estado != EstadoCamioneta.EnArriendo)
+                        {
+                            <a asp-page="CambiarEstado"
+                               asp-route-id="@c.Id"
+                               asp-route-nuevoEstado="@EstadoCamioneta.EnArriendo"
+                               class="btn btn-sm btn-dark">
+                                En Arriendo
+                            </a>
+                        }
+
+                        <a asp-page="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

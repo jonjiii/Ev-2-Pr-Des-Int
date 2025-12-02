@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaComercial.Web.Data;
 using SistemaComercial.Web.Models;
 using SistemaComercial.Web.Services;
+
 using Camionetas.Grpc;
 
 namespace SistemaComercial.Web.Pages.Arriendos;
@@ -37,7 +38,7 @@ public class IndexModel : PageModel
 
         try
         {
-            var cambio = await _mantencionGrpc.CambiarEstado(arriendo.Patente, "Disponible");
+            var cambio = await _mantencionGrpc.CambiarEstado(arriendo.Patente, EstadoCamioneta.Disponible);
             if (!cambio.Success)
             {
                 TempData["Error"] = $"No se pudo cambiar el estado de la camioneta: {cambio.Message}";

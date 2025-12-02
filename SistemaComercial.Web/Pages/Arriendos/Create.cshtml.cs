@@ -129,14 +129,17 @@ public class CreateModel : PageModel
         {
             var msg = estadoCamioneta.Estado switch
             {
-                "En Mantencion" => $"La camioneta {Input.Patente} está en mantención y no puede ser arrendada.",
-                "En Arriendo" => $"La camioneta {Input.Patente} ya está en arriendo.",
+                var s when s == EstadoCamioneta.EnMantencion =>
+                    $"La camioneta {Input.Patente} está en mantención y no puede ser arrendada.",
+                var s when s == EstadoCamioneta.EnArriendo =>
+                    $"La camioneta {Input.Patente} ya está en arriendo.",
                 _ => $"La camioneta {Input.Patente} no está disponible para arriendo. Estado actual: {estadoCamioneta.Estado}."
             };
 
             ModelState.AddModelError(string.Empty, msg);
             return Page();
         }
+
 
         var precio = await _context.PreciosArriendo
             .FirstOrDefaultAsync(p => p.TipoCamioneta == Input.TipoCamioneta);
@@ -152,7 +155,7 @@ public class CreateModel : PageModel
 
         var total = dias * precio.PrecioPorDia;
 
-        var cambio = await _mantencionGrpc.CambiarEstado(Input.Patente, "En Arriendo");
+        var cambio = await _mantencionGrpc.CambiarEstado(Input.Patente, EstadoCamioneta.EnArriendo);
         if (!cambio.Success)
         {
             ModelState.AddModelError(string.Empty, $"No se pudo cambiar el estado de la camioneta en mantención: {cambio.Message}");
