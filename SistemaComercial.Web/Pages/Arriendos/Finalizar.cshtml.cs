@@ -63,7 +63,6 @@ public class FinalizarModel : PageModel
         if (Arriendo is null)
             return NotFound();
 
-        // Si ya está finalizado, no hacemos nada más
         if (Arriendo.FechaTermino.HasValue)
             return RedirectToPage("Index");
 
@@ -88,12 +87,10 @@ public class FinalizarModel : PageModel
             ModelState.AddModelError(string.Empty,
                 $"No se pudo cambiar el estado de la camioneta en el sistema de mantención: {cambio.Message}");
 
-            // Recalcular valores para mostrar de nuevo la página
             CalcularResumen();
             return Page();
         }
 
-        // 3) Actualizar arriendo en la base de datos comercial
         Arriendo.FechaTermino = hoy;
         Arriendo.PrecioTotal = total;
 

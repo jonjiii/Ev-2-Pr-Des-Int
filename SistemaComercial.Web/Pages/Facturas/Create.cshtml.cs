@@ -50,7 +50,7 @@ public class CreateModel : PageModel
     private async Task CargarArriendosAsync()
     {
         var arriendos = await _context.Arriendos
-            .Where(a => a.Factura == null && a.FechaTermino != null)    // solo finalizados y sin factura
+            .Where(a => a.Factura == null && a.FechaTermino != null)
             .Include(a => a.Cliente)
             .OrderBy(a => a.FechaInicio)
             .ToListAsync();

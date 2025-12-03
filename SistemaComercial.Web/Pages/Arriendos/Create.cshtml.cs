@@ -70,7 +70,6 @@ public class CreateModel : PageModel
 
         ClientesSelect = new SelectList(clientes, "Id", "Nombre");
 
-        // Texto amigable: "Tipo — $X/día"
         PreciosSelect = new SelectList(
             precios.Select(p => new
             {
